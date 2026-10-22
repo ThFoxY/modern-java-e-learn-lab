@@ -8,13 +8,20 @@ import java.util.regex.Pattern;
  * Sources:
  * <a href="https://blog.jetbrains.com/idea/2024/03/easy-hacks-how-to-throw-java-exceptions/">Easy Hacks: How to Throw Java Exceptions</a>
  * <a href="https://www.itflashcards.com/cheatsheets/regex/">Regex Cheat Sheet</a>
+ * <a href="https://wordcounter.ai/remove-accents/">Remove Accents from Text</a>
+ * <a href="https://www.jmdoudoux.fr/java/dej/index.htm">Développons en Java</a>
+ * <a href="https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html#tag">How to Write Doc Comments for the Javadoc Tool</a>
  */
 
-public class Slugifier {
-    private Slugifier() {
-        /* This utility class should not be instantiated */
-    }
-
+/**
+ * Converts a string into its slug format (useful for URLs or filenames)
+ * @todo Some characters do not have a NFD-decomposable base:
+ *      The German ß (eszett) decomposes to ss only by linguistic convention
+ *      The Scandinavian Æ, Œ, Ø need explicit mapping (Æ → AE, Œ → OE, Ø → O)
+ *      The Polish Ł (slashed L) and the Icelandic Þ (thorn) also need explicit handling
+ * @version 1.0
+ */
+public final class Slugifier {
     /**
      * Any character that is not a lowercase letter, a digit or a hyphen
      *  [...] (Character Class): matches any single character contained inside the brackets
@@ -28,7 +35,7 @@ public class Slugifier {
      *  Symbols (@, #, !)
      *  Accented or non-English characters (é, ö, à, î)
      */
-    private static final Pattern NON_ALPHANUMERIC = Pattern.compile("[^a-z0-9-]");
+    private static final Pattern NON_ALPHANUMERIC = Pattern.compile("[^a-z0-9-]+");
     /**
      * Matches any single whitespace character, including:
      *  Spaces ( )
@@ -40,8 +47,13 @@ public class Slugifier {
      */
     private static final Pattern WHITESPACE = Pattern.compile("\\s+");
     private static final Pattern DUP_HYPHEN = Pattern.compile("-+");
+    private static final Pattern SEP_ACCENTS = Pattern.compile("\\p{M}");
 
-    public static String stringToSlug(String s) throws IllegalArgumentException {
+    private Slugifier() {
+        /* This utility class should not be instantiated */
+    }
+
+    public static String slugify(String s) throws IllegalArgumentException {
         if (s == null) {
             throw new IllegalArgumentException("Threw an error here!");
         }
@@ -56,7 +68,7 @@ public class Slugifier {
         slug = Normalizer.normalize(slug, Normalizer.Form.NFD);
 
         // 4. Removes separated accents
-        slug = slug.replaceAll("\\p{M}", "");
+        slug = SEP_ACCENTS.matcher(slug).replaceAll("");
 
         // 5. Removes any character that is not a lowercase letter, a digit or a hyphen
         slug = NON_ALPHANUMERIC.matcher(slug).replaceAll("");

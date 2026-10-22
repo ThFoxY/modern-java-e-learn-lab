@@ -1,6 +1,6 @@
 package org.example;
 
-import static org.example.Slugifier.stringToSlug;
+import static org.example.Slugifier.slugify;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;
@@ -21,28 +21,28 @@ class SlugifierTest {
     @DisplayName("Returns the slug of a simple string")
     void givenASimpleString_whenStringToSlug_thenReturnSlug() {
         // Expected vs Actual
-        String actualNonStrippedString = stringToSlug("Hello, World!");
-        String expectedSlug = "hello-world";
+        String expectedSlug = slugify("Hello, World!");
+        String actualSlug = "hello-world";
 
-        assertEquals(expectedSlug, actualNonStrippedString, "There is an error message here!");
+        assertEquals(actualSlug, expectedSlug, "There is an error message here!");
     }
 
     @Test
     @DisplayName("Returns the stripped slug of a non-stripped string")
     void givenANonStrippedString_whenStringToSlug_thenReturnStrippedSlug() {
-        String actualSimpleString = stringToSlug("  Hello, World!  ");
-        String expectedStrippedSlug = "  hello-world  ".strip(); // "hello-world" without blank spaces
+        String expectedSlug = slugify("  Hello, World!  ");
+        String actualSlug = "hello-world";
 
-        assertEquals(expectedStrippedSlug, actualSimpleString, "There is an error message here!");
+        assertEquals(actualSlug, expectedSlug, "There is an error message here!");
     }
 
     @Test
     @DisplayName("Returns an empty slug of a empty string")
     void givenAnEmptyString_whenStringToSlug_thenReturnAnEmptySlug() {
-        String actualEmptyString = stringToSlug("");
-        String expectedEmptySlug = "";
+        String expectedSlug = slugify("");
+        String actualSlug = "";
 
-        assertEquals(expectedEmptySlug, actualEmptyString, "There is an error message here!");
+        assertEquals(actualSlug, expectedSlug, "There is an error message here!");
     }
 
     @Test
@@ -50,7 +50,7 @@ class SlugifierTest {
     void givenANullString_whenStringToSlug_thenThrowAnIllegalArgumentException() {
         IllegalArgumentException expectedException =
                 assertThrows(IllegalArgumentException.class, () -> {
-                    stringToSlug(null);
+                    slugify(null);
                 });
 
         String expectedMessage = "Threw an error here!";
@@ -62,9 +62,18 @@ class SlugifierTest {
     @Test
     @DisplayName("Returns a normalized slug of an accented string")
     void givenAnAccentedString_whenStringToSlug_thenReturnANormalizedSlug() {
-        String actualAccentedString = stringToSlug("Café");
-        String expectedNormalizedSlug = "cafe";
+        String expectedSlug = slugify("Café");
+        String actualSlug = "cafe";
 
-        assertEquals(expectedNormalizedSlug, actualAccentedString, "There is an error message here!");
+        assertEquals(actualSlug, expectedSlug, "There is an error message here!");
+    }
+
+    @Test
+    @DisplayName("Returns an hyphen-separated slug of a comma-separated string (no spaces)")
+    void givenACommaSeparatedStringWithoutSpaces_whenStringToSlug_thenReturnAnHyphenSeparatedSlug() {
+        String expectedSlug = slugify("hello,world!");
+        String actualSlug = "hello-world";
+
+        assertEquals(actualSlug, expectedSlug);
     }
 }
