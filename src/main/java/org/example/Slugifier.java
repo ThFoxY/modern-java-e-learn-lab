@@ -4,22 +4,29 @@ import java.text.Normalizer;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-/**
- * Sources:
- * <a href="https://blog.jetbrains.com/idea/2024/03/easy-hacks-how-to-throw-java-exceptions/">Easy Hacks: How to Throw Java Exceptions</a>
- * <a href="https://www.itflashcards.com/cheatsheets/regex/">Regex Cheat Sheet</a>
- * <a href="https://wordcounter.ai/remove-accents/">Remove Accents from Text</a>
- * <a href="https://www.jmdoudoux.fr/java/dej/index.htm">Développons en Java</a>
- * <a href="https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html#tag">How to Write Doc Comments for the Javadoc Tool</a>
- */
+// Sources:
+// <a href="https://blog.jetbrains.com/idea/2024/03/easy-hacks-how-to-throw-java-exceptions/">Easy Hacks: How to Throw Java Exceptions</a>
+// <a href="https://www.itflashcards.com/cheatsheets/regex/">Regex Cheat Sheet</a>
+// <a href="https://wordcounter.ai/remove-accents/">Remove Accents from Text</a>
+// <a href="https://www.jmdoudoux.fr/java/dej/index.htm">Développons en Java</a>
+// <a href="https://www.oracle.com/technical-resources/articles/java/javadoc-tool.html#tag">How to Write Doc Comments for the Javadoc Tool</a>
 
 /**
- * Converts a string into its slug format (useful for URLs or filenames)
- * @todo Some characters do not have a NFD-decomposable base:
- *      The German ß (eszett) decomposes to ss only by linguistic convention
- *      The Scandinavian Æ, Œ, Ø need explicit mapping (Æ → AE, Œ → OE, Ø → O)
- *      The Polish Ł (slashed L) and the Icelandic Þ (thorn) also need explicit handling
- * @version 1.0
+ * Converts a string into its slug format, useful for URLs or filenames.
+ * <p>
+ *     A slug is lowercase, contains only ASCII letters, digits and hyphens,
+ *     and has no leading, trailing, or consecutive hyphens. Input is normalized
+ *     to NFD, accents are stripped, and common ligatures (ß, æ, œ, ø, ł, þ)
+ *     are transliterated to their ASCII equivalents.
+ * </p>
+ *
+ * @apiNote The NDF normalization does not decompose every character;
+ *          transliteration covers only the most common ligatures. Any
+ *          other non-ASCII, non-decomposable character is dropped.
+ * @implNote The transliteration is not implemented yet; only a map of
+ *           common ligatures exists for now.
+ *           Tests featuring these inputs must also be added.
+ * @version 1.1
  */
 public final class Slugifier {
     /**
@@ -49,10 +56,34 @@ public final class Slugifier {
     private static final Pattern DUP_HYPHEN = Pattern.compile("-+");
     private static final Pattern SEP_ACCENTS = Pattern.compile("\\p{M}");
 
+    /**
+     * Handles ligatures (characters without a NFD-decomposable base), such as:
+     *  The German ß (eszett)
+     *  The Scandinavian Æ, Œ, Ø
+     *  The Polish Ł (slashed L) and the Icelandic Þ (thorn)
+     */
+    private static final Map<String, String> LIGATURES = Map.of(
+            // lowercase    // uppercase
+            "ß", "ss",      "ẞ", "ss",      // eszett
+            "æ", "ae",      "Æ", "ae",      // aesc
+            "œ", "oe",      "Œ", "oe",      // e in the o
+            "ø", "o",       "Ø", "o",       // slashed o
+            "ł", "l",       "Ł", "l",       // slashed l
+            "þ", "th",      "Þ", "th"       // thorn
+    );
+
     private Slugifier() {
         /* This utility class should not be instantiated */
     }
 
+    /**
+     * Converts the given string to a slug.
+     *
+     * @param s the string to convert, may be empty but not {@code null}
+     * @return the slug form of the input, never {@code null}; empty if the
+     *         input contains no slugify-able character
+     * @throws IllegalArgumentException if {@code s} is {@code null}
+     */
     public static String slugify(String s) {
         if (s == null) {
             throw new IllegalArgumentException("Input string must not be null");
