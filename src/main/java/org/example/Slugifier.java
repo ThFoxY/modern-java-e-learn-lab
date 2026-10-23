@@ -53,9 +53,9 @@ public final class Slugifier {
         /* This utility class should not be instantiated */
     }
 
-    public static String slugify(String s) throws IllegalArgumentException {
+    public static String slugify(String s) {
         if (s == null) {
-            throw new IllegalArgumentException("Threw an error here!");
+            throw new IllegalArgumentException("Input string must not be null");
         }
 
         // 1. Converts to lowercase
