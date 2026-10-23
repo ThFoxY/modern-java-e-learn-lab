@@ -30,14 +30,14 @@ class SlugifierTest {
     @ParameterizedTest(name = "{index} ==> \"{0}\" -> \"{1}\"")
     @CsvSource({
             // input                // expected
-            "Hello, World!,         hello-world",
-            "Hello,World!,          hello-world",   // no spacing
+            "'Hello, World!',       hello-world",
+            "'Hello,World!',        hello-world",   // no spacing
             "'  Hello, World!  ',   hello-world",   // multiple spaces
             "hello---world,         hello-world",   // multiple hyphens
             "-a-,                   a",             // hyphens at borders
             "!!!,                   ''",            // empty
             "abc-123,               abc-123",       // digits
-            "crême brûlée,          creme-brulee"   // multiple accents
+            "'crème brûlée',        creme-brulee"   // multiple accents
     })
     @DisplayName("Returns the expected slug for various inputs")
     void givenAnInputString_whenSlugified_thenReturnExpectedSlug(String input, String expected) {

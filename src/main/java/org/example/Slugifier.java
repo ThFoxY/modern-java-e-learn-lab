@@ -20,12 +20,16 @@ import java.util.regex.Pattern;
  *     are transliterated to their ASCII equivalents.
  * </p>
  *
- * @apiNote The NDF normalization does not decompose every character;
+ * @apiNote The NFD normalization does not decompose every character;
  *          transliteration covers only the most common ligatures. Any
  *          other non-ASCII, non-decomposable character is dropped.
  * @implNote The transliteration is not implemented yet; only a map of
- *           common ligatures exists for now.
+ *           common ligatures exists for now. Must handle:
+ *           - The German ß (eszett),
+ *           - The Scandinavian Æ, Œ, Ø,
+ *           - The Polish Ł (slashed L) and the Icelandic Þ (thorn).
  *           Tests featuring these inputs must also be added.
+ * @author david
  * @version 1.1
  */
 public final class Slugifier {
@@ -42,38 +46,12 @@ public final class Slugifier {
      *  Symbols (@, #, !)
      *  Accented or non-English characters (é, ö, à, î)
      */
-    private static final Pattern NON_ALPHANUMERIC = Pattern.compile("[^a-z0-9-]+");
-    /**
-     * Matches any single whitespace character, including:
-     *  Spaces ( )
-     *  Tabs (\t)
-     *  Newlines (\n)
-     *  Carriage returns (\r)
-     * + (Quantifier): means "match one or more times" of the preceding token
-     * The first \ escapes the \s character
-     */
-    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
-    private static final Pattern DUP_HYPHEN = Pattern.compile("-+");
+    private static final Pattern NON_ALPHANUMERIC = Pattern.compile("[^a-z0-9]+");
     private static final Pattern SEP_ACCENTS = Pattern.compile("\\p{M}");
-
-    /**
-     * Handles ligatures (characters without a NFD-decomposable base), such as:
-     *  The German ß (eszett)
-     *  The Scandinavian Æ, Œ, Ø
-     *  The Polish Ł (slashed L) and the Icelandic Þ (thorn)
-     */
-    private static final Map<String, String> LIGATURES = Map.of(
-            // lowercase    // uppercase
-            "ß", "ss",      "ẞ", "ss",      // eszett
-            "æ", "ae",      "Æ", "ae",      // aesc
-            "œ", "oe",      "Œ", "oe",      // e in the o
-            "ø", "o",       "Ø", "o",       // slashed o
-            "ł", "l",       "Ł", "l",       // slashed l
-            "þ", "th",      "Þ", "th"       // thorn
-    );
+    private static final Pattern SINGLE_HYPHEN = Pattern.compile("^(-+)|(-+)$");
 
     private Slugifier() {
-        /* This utility class should not be instantiated */
+        throw new AssertionError("Utility class must not be instantiated");
     }
 
     /**
@@ -92,29 +70,16 @@ public final class Slugifier {
         // 1. Converts to lowercase
         String slug = s.toLowerCase(Locale.ROOT);
 
-        // 2. Replaces spaces with hyphens
-        slug = WHITESPACE.matcher(slug).replaceAll("-");
-
-        // 3. Formats to NFD (Normalization Form D) to handle accented strings
+        // 2. Formats to NFD (Normalization Form D) to handle accented strings
         slug = Normalizer.normalize(slug, Normalizer.Form.NFD);
 
-        // 4. Removes separated accents
+        // 3. Removes separated accents
         slug = SEP_ACCENTS.matcher(slug).replaceAll("");
 
-        // 5. Removes any character that is not a lowercase letter, a digit or a hyphen
-        slug = NON_ALPHANUMERIC.matcher(slug).replaceAll("");
+        // 4. Replaces any run of non-[a-z0-9] with a single hyphen
+        slug = NON_ALPHANUMERIC.matcher(slug).replaceAll("-");
 
-        // 6. Removes consecutive hyphens
-        slug = DUP_HYPHEN.matcher(slug).replaceAll("-");
-
-        // 7. Removes starting and ending hyphens
-        if (slug.startsWith("-")) {
-            slug = slug.substring(1);
-        }
-        if (slug.endsWith("-")) {
-            slug = slug.substring(0, slug.length() - 1);
-        }
-
-        return slug;
+        // 5. Removes leading and trailing hyphens
+        return SINGLE_HYPHEN.matcher(slug).replaceAll("");
     }
 }
