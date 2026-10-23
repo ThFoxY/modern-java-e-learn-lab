@@ -20,29 +20,30 @@ class SlugifierTest {
     @Test
     @DisplayName("Returns the slug of a simple string")
     void givenASimpleString_whenStringToSlug_thenReturnSlug() {
-        // Expected vs Actual
-        String expectedSlug = slugify("Hello, World!");
-        String actualSlug = "hello-world";
+        // Expected IS the hard-coded constant
+        // Actual IS the resulting call of a method
+        String actualSlug = slugify("Hello, World!");
+        String expectedSlug = "hello-world";
 
-        assertEquals(actualSlug, expectedSlug, "There is an error message here!");
+        assertEquals(expectedSlug, actualSlug, "There is an error message here!");
     }
 
     @Test
     @DisplayName("Returns the stripped slug of a non-stripped string")
     void givenANonStrippedString_whenStringToSlug_thenReturnStrippedSlug() {
-        String expectedSlug = slugify("  Hello, World!  ");
-        String actualSlug = "hello-world";
+        String actualSlug = slugify("  Hello, World!  ");
+        String expectedSlug = "hello-world";
 
-        assertEquals(actualSlug, expectedSlug, "There is an error message here!");
+        assertEquals(expectedSlug, actualSlug, "There is an error message here!");
     }
 
     @Test
     @DisplayName("Returns an empty slug of a empty string")
     void givenAnEmptyString_whenStringToSlug_thenReturnAnEmptySlug() {
-        String expectedSlug = slugify("");
-        String actualSlug = "";
+        String actualSlug = slugify("");
+        String expectedSlug = "";
 
-        assertEquals(actualSlug, expectedSlug, "There is an error message here!");
+        assertEquals(expectedSlug, actualSlug, "There is an error message here!");
     }
 
     @Test
@@ -62,18 +63,18 @@ class SlugifierTest {
     @Test
     @DisplayName("Returns a normalized slug of an accented string")
     void givenAnAccentedString_whenStringToSlug_thenReturnANormalizedSlug() {
-        String expectedSlug = slugify("Café");
-        String actualSlug = "cafe";
+        String actualSlug = slugify("Café");
+        String expectedSlug = "cafe";
 
-        assertEquals(actualSlug, expectedSlug, "There is an error message here!");
+        assertEquals(expectedSlug, actualSlug, "There is an error message here!");
     }
 
     @Test
     @DisplayName("Returns an hyphen-separated slug of a comma-separated string (no spaces)")
     void givenACommaSeparatedStringWithoutSpaces_whenStringToSlug_thenReturnAnHyphenSeparatedSlug() {
-        String expectedSlug = slugify("hello,world!");
-        String actualSlug = "hello-world";
+        String actualSlug = slugify("hello,world!");
+        String expectedSlug = "hello-world";
 
-        assertEquals(actualSlug, expectedSlug);
+        assertEquals(expectedSlug, actualSlug);
     }
 }
