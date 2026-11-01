@@ -34,8 +34,9 @@ class SlugifierTest {
             "'Hello,World!',        hello-world",   // no spacing
             "'  Hello, World!  ',   hello-world",   // multiple spaces
             "hello---world,         hello-world",   // multiple hyphens
+            "'',                    ''",           // empty input
             "-a-,                   a",             // hyphens at borders
-            "!!!,                   ''",            // empty
+            "!!!,                   ''",            // empty output
             "abc-123,               abc-123",       // digits
             "'crème brûlée',        creme-brulee"   // multiple accents
     })

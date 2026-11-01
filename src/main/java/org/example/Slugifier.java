@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  *     A slug is lowercase, contains only ASCII letters, digits and hyphens,
  *     and has no leading, trailing, or consecutive hyphens. Input is normalized
  *     to NFD, accents are stripped, and common ligatures (ß, æ, œ, ø, ł, þ)
- *     are transliterated to their ASCII equivalents.
+ *     are not transliterated to their ASCII equivalents yet (see @implNote).
  * </p>
  *
  * @apiNote The NFD normalization does not decompose every character;
@@ -39,7 +39,6 @@ public final class Slugifier {
      *  ^: Negates the set, meaning "anything except the characters listed below"
      *  a-z: Any lowercase letter from a to z
      *  0-9: Any digit from 0 to 9
-     *  -: A literal hyphen (placed at the end of the character class so it is not mistaken for a range)
      * Matches:
      *  Uppercase letters (A, Z)
      *  Spaces ( )
@@ -48,7 +47,7 @@ public final class Slugifier {
      */
     private static final Pattern NON_ALPHANUMERIC = Pattern.compile("[^a-z0-9]+");
     private static final Pattern SEP_ACCENTS = Pattern.compile("\\p{M}");
-    private static final Pattern SINGLE_HYPHEN = Pattern.compile("^(-+)|(-+)$");
+    private static final Pattern EDGE_HYPHENS = Pattern.compile("^(-+)|(-+)$");
 
     private Slugifier() {
         throw new AssertionError("Utility class must not be instantiated");
@@ -80,6 +79,6 @@ public final class Slugifier {
         slug = NON_ALPHANUMERIC.matcher(slug).replaceAll("-");
 
         // 5. Removes leading and trailing hyphens
-        return SINGLE_HYPHEN.matcher(slug).replaceAll("");
+        return EDGE_HYPHENS.matcher(slug).replaceAll("");
     }
 }
