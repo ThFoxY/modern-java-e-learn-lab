@@ -1,4 +1,4 @@
-package org.example;
+package io.github.thfoxy;
 
 import java.text.Normalizer;
 import java.util.Locale;

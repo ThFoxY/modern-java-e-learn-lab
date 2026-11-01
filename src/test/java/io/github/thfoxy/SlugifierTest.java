@@ -1,6 +1,6 @@
-package org.example;
+package io.github.thfoxy;
 
-import static org.example.Slugifier.slugify;
+import static io.github.thfoxy.Slugifier.slugify;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;
