@@ -1,0 +1,36 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# https://www.fosstechnix.com/setting-up-a-java-maven-project-with-github-actions/
+
+name: Java CI with Maven
+
+on:
+    push:
+        branches: [ "master" ]
+    pull_request:
+        branches: [ "master" ]
+
+permissions:
+    contents: read
+
+jobs:
+    build:
+        name: Build and Test
+        runs-on: ubuntu-latest
+
+        steps:
+            # 1. Fetches the repository source code
+            -   name: Checkout repository
+                uses: actions/checkout@v7
+            # 2. JDK (Java Development Kit) configuration
+            -   name: Set up JDK 25
+                uses: actions/setup-java@v6
+                with:
+                    distribution: 'temurin'
+                    java-version: '25'
+                    cache: 'maven'
+            # 3. Gives execution permission to Maven Wrapper (for security/compatibility concerns)
+            - name: Makes Maven Wrapper executable
+              run: chmod +x mvnw
+            # 4. Tests compilation and execution with Maven
+            -   name: Build and Test with Maven
+                run: ./mvnw -B clean verify
